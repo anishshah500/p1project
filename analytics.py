@@ -11,6 +11,7 @@ from sklearn.linear_model import LinearRegression
 from pykalman import KalmanFilter
 from scipy.stats import zscore
 from data_loader import *
+from scipy.optimize import minimize
 
 start_date_limit, end_date_limit = '1995-01-01', '2024-08-09'
 
