@@ -74,7 +74,14 @@ class DataLoader():
         """
         Download the data from Yahoo Finance.
         """
-        self.get_db().equities.drop()
+
+        # If database exists delete it and re-create
+        try:
+            db.validate_collection("equities")  
+            self.get_db().equities.drop()
+        except pymongo.errors.OperationFailure:
+            print("This collection doesn't exist")
+
         tickers1 = self.get_tickers()[:1500]
         tickers2 = self.get_tickers()[1500:]
         data1 = yf.download(tickers1, start=start_date_limit, end=end_date_limit)['Adj Close']
