@@ -10,6 +10,10 @@ from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
 from pykalman import KalmanFilter
 from scipy.stats import zscore
+from data_loader import *
+
+start_date_limit = '1995-01-01'
+end_date_limit = '2024-12-31'
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
