@@ -10,7 +10,7 @@ from pymongo import MongoClient
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 start_date_limit = '1995-01-01'
-end_date_limit = '2024-12-31'
+end_date_limit = g
 
 class DataLoader():
     """
@@ -32,11 +32,15 @@ class DataLoader():
         
         # Get MongoDB URI from environment variable
         mongo_uri = os.getenv("MONGODB_URI")
-        print("MONGODB_URI: " mongo_uri)
-        
-        client = MongoClient(mongo_uri)
-        db = client['equities_db']
-        return db
+        if mongo_uri:
+            print("MONGODB_URI: " + mongo_uri)
+            
+            client = MongoClient(mongo_uri)
+            db = client['equities_db']
+            return db
+        else:
+            print("Check connection.....")
+            return None
 
     def store_data(self, data):
         """
