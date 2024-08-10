@@ -12,8 +12,7 @@ from pykalman import KalmanFilter
 from scipy.stats import zscore
 from data_loader import *
 
-start_date_limit = '1995-01-01'
-end_date_limit = '2024-12-31'
+start_date_limit, end_date_limit = '1995-01-01', '2024-08-09'
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -22,12 +21,18 @@ class Analytics():
     A class to analyze the data. 
     """
     
-    def __init__(self, force_refresh=False):
+    def __init__(self):
         """
         Initialize the Analyzer.
         """
         self.dc = DataLoader(start_date_limit, end_date_limit)
-        self.df = self.dc.get_equities_data(force_refresh)
+
+
+    def set_data_df(self, start_date, end_date, force_refresh=False):
+        """
+        Set data and returns df
+        """
+        self.df = self.dc.get_equities_data(start_date, end_date, force_refresh)
         self.df.set_index("Date", inplace=True)
         self.df.index = pd.to_datetime(self.df.index).date
         

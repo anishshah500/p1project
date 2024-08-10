@@ -5,16 +5,15 @@ import plotly.graph_objs as go
 
 from dash import dcc, html, Input, Output, State
 from dash_table import DataTable
-from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from analytics import *
 
 a = Analytics()
-data = a.returns_df
+tickers = a.dc.get_tickers()
 
-ticker_options = [{"label": ticker, "value": ticker} for ticker in list(data.columns)]
+ticker_options = [{"label": ticker, "value": ticker} for ticker in tickers]
 correlation_method_options = [
     {"label": "pearson", "value": "pearson"},
     {"label": "spearman", "value": "spearman"},
@@ -123,6 +122,9 @@ def update_dashboard1(n_bt_clicks, start_date, end_date, ticker1, ticker2, lookb
     if n_bt_clicks:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+        a.set_data_df(start_date, end_date)
+
         output = a.perform_backtest(ticker1, ticker2, start_date, end_date, lookback, long_q, short_q, hold_days)
 
         performance = pd.DataFrame(output["performance_metrics"]).round(2)

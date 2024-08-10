@@ -6,6 +6,7 @@ import pandas as pd
 import yfinance as yf
 
 from pymongo import MongoClient
+from datetime import datetime
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -30,7 +31,7 @@ class DataLoader():
         """
         
         # Get MongoDB URI from environment variable
-        mongo_uri = os.getenv("MONGODB_URI")
+        mongo_uri = "mongodb+srv://user1:AhsyWdXCubfjdaFT@cluster0.kt9eu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         if mongo_uri:
             print("MONGODB_URI: " + mongo_uri)
             
@@ -56,12 +57,21 @@ class DataLoader():
             print("Failed...")
             print(e)
 
-    def retrieve_data(self, collection_name):
+    def retrieve_data(self, start_date, end_date):
         """
         Retrieve the data from the MongoDB database.
         """
         db = self.get_db()
-        df = pd.DataFrame(list(db.equities.find())).iloc[:,1:]
+
+        # Create the query
+        query = {
+            "Date": {
+                "$gte": datetime.strftime(start_date, "%Y-%m-%d"),
+                "$lt": datetime.strftime(end_date, "%Y-%m-%d")
+            }
+        }
+
+        df = pd.DataFrame(db.equities.find(query)).iloc[:,1:]
         return df
 
     def get_tickers(self):
@@ -83,25 +93,22 @@ class DataLoader():
             print(e)
             print("This collection doesn't exist, something didn't really work")
 
-        tickers1 = self.get_tickers()[:1500]
-        tickers2 = self.get_tickers()[1500:]
-        data1 = yf.download(tickers1, start=start_date_limit, end=end_date_limit)['Adj Close']
-        data2 = yf.download(tickers2, start=start_date_limit, end=end_date_limit)['Adj Close']
-        data = data1.merge(data2, left_index=True, right_index=True)
+        tickers1 = self.get_tickers()
+        data = yf.download(tickers1, start=start_date_limit, end=end_date_limit)['Adj Close']
         data = data.dropna(axis=1, how='all')
         self.store_data(data)
         
-    def get_equities_data(self, force_refresh=False):
+    def get_equities_data(self, start_date, end_date, force_refresh=False):
         """
         Check if the data is already in the database, and if not, download it.
         If force_refresh is True, download the data even if it is already in the database.
         """
         if force_refresh:
             self.download_data()
-            return self.retrieve_data('equities')
+            return self.retrieve_data(start_date, end_date,)
         else:
             try:
-                return self.retrieve_data('equities')
+                return self.retrieve_data(start_date, end_date,)
             except Exception as e:
                 self.download_data()
-                return self.retrieve_data('equities')
+                return self.retrieve_data(start_date, end_date,)
