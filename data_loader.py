@@ -34,7 +34,7 @@ class DataLoader():
         if mongo_uri:
             print("MONGODB_URI: " + mongo_uri)
             
-            client = MongoClient(mongo_uri)
+            client = MongoClient(mongo_uri, connect=False)
             db = client['equities_db']
             return db
         else:
