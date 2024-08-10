@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 from dash import dcc, html, Input, Output, State
 from dash_table import DataTable
 from datetime import datetime
+from analytics import Analytics
 
 a = Analytics()
 data = a.returns_df
