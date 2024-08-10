@@ -79,8 +79,9 @@ class DataLoader():
         try:
             db.validate_collection("equities")  
             self.get_db().equities.drop()
-        except pymongo.errors.OperationFailure:
-            print("This collection doesn't exist")
+        except Exception as e:
+            print(e)
+            print("This collection doesn't exist, something didn't really work")
 
         tickers1 = self.get_tickers()[:1500]
         tickers2 = self.get_tickers()[1500:]
