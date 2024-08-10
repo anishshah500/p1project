@@ -260,12 +260,12 @@ class Analytics():
     
         return metrics
 
-    def perform_backtest(self, ticker1, ticker2, start_date, end_date, lookback, low_quantile, high_quantile, hold_days):
+    def perform_backtest(self, ticker1, ticker2, lookback, low_quantile, high_quantile, hold_days):
         """
         Perform backtesting on the data.
         """
         # Calculate rolling z-score for ratio
-        filtered_df = a.df.loc[(start_date - pd.offsets.BusinessDay(lookback)).date():end_date].loc[:,[ticker1, ticker2]]
+        filtered_df = a.df.loc[:,[ticker1, ticker2]]
         filtered_df["ret_" + ticker1] = filtered_df[ticker1].diff()
         filtered_df["ret_" + ticker2] = filtered_df[ticker2].diff()
         filtered_df["tomm_PnL_" + ticker1] = filtered_df["ret_" + ticker1].shift(-1)

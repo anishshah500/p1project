@@ -80,8 +80,11 @@ def update_dashboard(n_clicks, corr_method, top_n, start_date, end_date):
     if n_clicks > 0:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+        # Pull data
+        a.set_data_df(start_date, end_date)
         
-        top_pairs = a.get_output_df(corr_method, start_date, end_date, 10).round(3)
+        top_pairs = a.get_output_df(corr_method, top_n).round(3)
 
         pairs = DataTable(
             columns=[{"name": i, "id": i} for i in top_pairs.columns],
@@ -96,7 +99,7 @@ def update_dashboard(n_clicks, corr_method, top_n, start_date, end_date):
                 'fontWeight': 'bold'
             },
             page_action='native',
-            page_size=5,
+            page_size=10,
             filter_action='native',
             sort_action='native'
         )
@@ -123,9 +126,11 @@ def update_dashboard1(n_bt_clicks, start_date, end_date, ticker1, ticker2, lookb
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
 
-        a.set_data_df(start_date, end_date)
+        # Pull data
+        a.set_data_df((start_date - pd.offsets.BusinessDay(lookback)).date(), end_date)
+        print(a.df)
 
-        output = a.perform_backtest(ticker1, ticker2, start_date, end_date, lookback, long_q, short_q, hold_days)
+        output = a.perform_backtest(ticker1, ticker2, lookback, long_q, short_q, hold_days)
 
         performance = pd.DataFrame(output["performance_metrics"]).round(2)
         performance_table = DataTable(
