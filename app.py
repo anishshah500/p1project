@@ -128,7 +128,6 @@ def update_dashboard1(n_bt_clicks, start_date, end_date, ticker1, ticker2, lookb
 
         # Pull data
         a.set_data_df((start_date - pd.offsets.BusinessDay(lookback)).date(), end_date)
-        print(a.df)
 
         output = a.perform_backtest(ticker1, ticker2, lookback, long_q, short_q, hold_days)
 

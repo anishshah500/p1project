@@ -265,7 +265,7 @@ class Analytics():
         Perform backtesting on the data.
         """
         # Calculate rolling z-score for ratio
-        filtered_df = a.df.loc[:,[ticker1, ticker2]]
+        filtered_df = self.df.loc[:,[ticker1, ticker2]]
         filtered_df["ret_" + ticker1] = filtered_df[ticker1].diff()
         filtered_df["ret_" + ticker2] = filtered_df[ticker2].diff()
         filtered_df["tomm_PnL_" + ticker1] = filtered_df["ret_" + ticker1].shift(-1)
