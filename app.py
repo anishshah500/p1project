@@ -5,7 +5,7 @@ from dash import dcc, html, Input, Output, State
 from dash_table import DataTable
 from datetime import datetime
 
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from analytics import *
 
