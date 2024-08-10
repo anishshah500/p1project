@@ -2,6 +2,7 @@ import os
 import sys
 import dash
 import plotly.graph_objs as go
+import flask
 
 from dash import dcc, html, Input, Output, State
 from dash_table import DataTable
@@ -21,8 +22,9 @@ correlation_method_options = [
     {"label": "kalman", "value": "kalman"}
 ]
 
-app = dash.Dash(__name__)
-server = app.server
+server = flask.Flask(__name__)
+app = dash.Dash(__name__, server= server)
+
 
 # App layout
 app.layout = html.Div(
