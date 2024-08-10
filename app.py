@@ -17,7 +17,9 @@ correlation_method_options = [
 ]
 
 app = dash.Dash(__name__)
+server = app.server
 
+# App layout
 app.layout = html.Div(
     [
         html.H1("Equities Pair Trading Dashboard"),
