@@ -9,8 +9,7 @@ from pymongo import MongoClient
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-start_date_limit = '1995-01-01'
-end_date_limit = g
+start_date_limit, end_date_limit = '1995-01-01', '2024-08-09'
 
 class DataLoader():
     """
