@@ -29,7 +29,12 @@ class DataLoader():
         """
         Get a connection to the MongoDB database.
         """
-        client = MongoClient('mongodb://localhost:27017/')
+        
+        # Get MongoDB URI from environment variable
+        mongo_uri = os.getenv("MONGODB_URI")
+        print("MONGODB_URI: " mongo_uri)
+        
+        client = MongoClient(mongo_uri)
         db = client['equities_db']
         return db
 
