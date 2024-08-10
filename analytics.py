@@ -27,7 +27,6 @@ class Analytics():
         """
         self.dc = DataLoader(start_date_limit, end_date_limit)
 
-
     def set_data_df(self, start_date, end_date, force_refresh=False):
         """
         Set data and returns df
@@ -173,28 +172,38 @@ class Analytics():
         results = results.sort_values(by="kalman_corr", key = lambda x: abs(x), ascending=False)
         return results
 
-    def calculate_mean_reversion_speed(self, ticker1, ticker2, start_date, end_date):
+    # Fit the Ornstein-Uhlenbeck process
+    def fit_ou_process(self, spread):
         """
-        Calculate the mean reversion speed between two securities.
+        OU fit.
         """
-        filtered_df = self.returns_df.loc[start_date:end_date]
+        def ou_likelihood(params):
+            mu, theta, sigma = params
+            n = len(spread)
+            dt = 1
+            # Calculate residuals
+            residuals = np.diff(spread - mu)
+            # Calculate log likelihood
+            log_likelihood = -n/2*np.log(2*np.pi) - n*np.log(sigma) - 1/(2*sigma**2) * np.sum((residuals - theta*spread[:-1]*dt)**2)
+            return -log_likelihood
 
-        returns1 = filtered_df[ticker1]
-        returns2 = filtered_df[ticker2]
+        # Initial guess for the parameters
+        initial_guess = [spread.mean(), 0.5, spread.std()]
+        # Minimize the negative log likelihood
+        result = minimize(ou_likelihood, initial_guess, method='L-BFGS-B')
+        mu, theta, sigma = result.x
+        return mu, theta, sigma
 
-        # Create time lagged return spread
-        spread = returns1 - returns2
-        spread_lagged = spread.shift(1).dropna()
-        spread = spread[1:]
-        X = sm.add_constant(spread_lagged)
-        y = spread
-
-        # Estimate speed of mean reversion
-        model = sm.OLS(y, X).fit()
-        beta = model.params[0]
-        delta_t = 1
-        theta = (1 - beta) / delta_t
+    def calculate_mean_reversion_speed(self, ticker1, ticker2):
+        """
+        Mean reversion speed for ticker pair
+        """
+        filtered_df = self.returns_df.loc[:,[ticker1, ticker2]].dropna()
+        spread = filtered_df[ticker1] - filtered_df[ticker2]
         
+        # Fit the Ornstein-Uhlenbeck process
+        mu, theta, sigma = self.fit_ou_process(spread)
+
         return theta
 
     def get_output_df(self, method, num_pairs):
@@ -215,10 +224,9 @@ class Analytics():
         # Get the top num_pairs pairs
         top_pairs = corr_pairs.head(num_pairs)
         top_pairs = top_pairs.rename(columns = {"corr": "corr_" + method})
-        # top_pairs['mean_reversion_speed'] = top_pairs.apply(lambda row: 
-        #                                                     self.calculate_mean_reversion_speed(row['Ticker1'], row['Ticker2'], 
-        #                                                                                         start_date, end_date), 
-        #                                                     axis=1)
+        top_pairs['mean_reversion_speed'] = top_pairs.apply(lambda row: 
+                                                            self.calculate_mean_reversion_speed(row['Ticker1'], row['Ticker2']), 
+                                                            axis=1)
 
         return top_pairs
 
