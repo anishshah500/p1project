@@ -105,10 +105,10 @@ class DataLoader():
         """
         if force_refresh:
             self.download_data()
-            return self.retrieve_data(start_date, end_date,)
+            return self.retrieve_data(start_date, end_date)
         else:
             try:
-                return self.retrieve_data(start_date, end_date,)
+                return self.retrieve_data(start_date, end_date)
             except Exception as e:
                 self.download_data()
-                return self.retrieve_data(start_date, end_date,)
+                return self.retrieve_data(start_date, end_date)

@@ -38,11 +38,11 @@ class Analytics():
         
         self.returns_df = self.df / self.df.shift(1) - 1
 
-    def calculate_correlations_pearson(self, start_date, end_date):
+    def calculate_correlations_pearson(self):
         """
         Calculate the correlations between the securities.
         """
-        filtered_df = self.returns_df.loc[start_date:end_date]
+        filtered_df = self.returns_df
         
         # Calculate the correlation matrix
         corr_matrix = filtered_df.corr()
@@ -61,11 +61,11 @@ class Analytics():
         corr_pairs = corr_pairs.sort_values(by="corr", key = lambda x: abs(x), ascending=False)
         return corr_pairs
 
-    def calculate_correlations_spearman(self, start_date, end_date):
+    def calculate_correlations_spearman(self):
         """
         Calculate the correlations between the securities.
         """
-        filtered_df = self.returns_df.loc[start_date:end_date]
+        filtered_df = self.returns_df
         
         # Calculate the correlation matrix using Spearman rank
         corr_matrix = filtered_df.corr(method="spearman")
@@ -98,11 +98,11 @@ class Analytics():
         t_stats = model.tvalues
         return t_stats
 
-    def calculate_correlations_OLS(self, start_date, end_date):
+    def calculate_correlations_OLS(self):
         """
         Calculate the correlations between the securities using OLS.
         """
-        filtered_df = self.returns_df.loc[start_date:end_date]
+        filtered_df = self.returns_df
         filtered_df = filtered_df.dropna(axis=1, how='all')
 
         cov = filtered_df.cov()
@@ -151,11 +151,11 @@ class Analytics():
         correlation = estimated_prices[stock_a].corr(estimated_prices[stock_b])
         return correlation
 
-    def calculate_correlations_kalman(self, start_date, end_date):
+    def calculate_correlations_kalman(self):
         """
         Calculate the correlations between the securities using Kalman filter.
         """
-        filtered_df = self.returns_df.loc[start_date:end_date]
+        filtered_df = self.returns_df
 
         # Compute kalman means for all pairs
         results, calced = [], set()
@@ -197,18 +197,18 @@ class Analytics():
         
         return theta
 
-    def get_output_df(self, method, start_date, end_date, num_pairs):
+    def get_output_df(self, method, num_pairs):
         """
         Get the outputs dataframe.
         """
         if method == "pearson":
-            corr_pairs = self.calculate_correlations_pearson(start_date, end_date)
+            corr_pairs = self.calculate_correlations_pearson()
         elif method == "spearman":
-            corr_pairs = self.calculate_correlations_spearman(start_date, end_date)
+            corr_pairs = self.calculate_correlations_spearman()
         elif method == "OLS":
-            corr_pairs = self.calculate_correlations_OLS(start_date, end_date)
+            corr_pairs = self.calculate_correlations_OLS()
         elif method == "kalman":
-            corr_pairs = self.calculate_correlations_kalman(start_date, end_date)
+            corr_pairs = self.calculate_correlations_kalman()
         else:
             raise ValueError("Invalid method. Must be 'pearson', 'spearman', or 'OLS'.")
 
