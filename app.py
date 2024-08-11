@@ -52,6 +52,10 @@ app.layout = html.Div(
                 [
                     html.H2("Run backtest"),
                     html.Br(),
+                    html.H6('Backtest based on mean reversion of p1/p2 ratio', 
+                     style={'display':'inline-block','margin-right':20}
+                    ),
+                    html.Br(),
                     html.H4('Ticker1',style={'display':'inline-block','margin-right':20}),
                     dcc.Dropdown(id="Ticker1", options=ticker_options, value="AAPL"),
                     html.H4('Ticker2',style={'display':'inline-block','margin-right':20}),
@@ -59,9 +63,9 @@ app.layout = html.Div(
                     html.H4('Lookback Window for Ratio Quantile',style={'display':'inline-block','margin-right':20}),
                     dcc.Input(id="lookback", type="number", value=63),
                     html.Br(),
-                    html.H4('Long Ratio Z-score Quantile',style={'display':'inline-block','margin-right':20}),
+                    html.H4('Price Ratio Z-score Quantile for Long',style={'display':'inline-block','margin-right':20}),
                     dcc.Slider(id="long_q", min=-3, max=0, step=0.25, value=-1),
-                    html.H4('Short Ratio Z-score Quantile',style={'display':'inline-block','margin-right':20}),
+                    html.H4('Price Ratio Z-score Quantile for Short',style={'display':'inline-block','margin-right':20}),
                     dcc.Slider(id="short_q", min=0, max=3, step=0.25, value=1),
                     html.H4('Hold Period for trade',style={'display':'inline-block','margin-right':20}),
                     dcc.Input(id="hold_days", type="number", value=2),
