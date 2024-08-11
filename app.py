@@ -18,7 +18,7 @@ ticker_options = [{"label": ticker, "value": ticker} for ticker in tickers]
 correlation_method_options = [
     {"label": "pearson", "value": "pearson"},
     {"label": "spearman", "value": "spearman"},
-    {"label": "OLS", "value": "OLS"},
+    # {"label": "OLS", "value": "OLS"},
     {"label": "kalman", "value": "kalman"}
 ]
 
@@ -32,7 +32,9 @@ app.layout = html.Div(
         html.H1("Equities Pair Trading Dashboard"),
         html.Div(id='input-section', children = 
                 [
-                    html.H4('Correlation Name',style={'display':'inline-block','margin-right':20}),
+                    html.H2("Get Top N correlations"),
+                    html.Br(),
+                    html.H4('Correlation Type',style={'display':'inline-block','margin-right':20}),
                     dcc.Dropdown(id="correlation_method", options=correlation_method_options, value="pearson"),
                     html.H4('Date Range',style={'display':'inline-block','margin-right':20}),
                     dcc.DatePickerRange(id="date-picker", start_date="2023-01-01", end_date="2023-12-31"),
@@ -43,8 +45,13 @@ app.layout = html.Div(
                     html.Button(id="submit-button", n_clicks=0, children="Submit")
                 ]),
         html.Div(id='pairs'),
+        html.H6('Please Note: In case OU fit doesn\'t converge, mean reversion speed defaults to 0.5', 
+                 style={'display':'inline-block','margin-right':20}
+                ),
         html.Div(id='input-section1', children = 
                 [
+                    html.H2("Run backtest"),
+                    html.Br(),
                     html.H4('Ticker1',style={'display':'inline-block','margin-right':20}),
                     dcc.Dropdown(id="Ticker1", options=ticker_options, value="AAPL"),
                     html.H4('Ticker2',style={'display':'inline-block','margin-right':20}),
