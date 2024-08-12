@@ -26,6 +26,15 @@ correlation_method_options = [
 server = flask.Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+# Custom style for card headers
+card_header_style = {
+    'backgroundColor': '#f8f9fa',
+    'fontWeight': 'bold',
+    'textAlign': 'center',
+    'fontSize': '1.25rem',
+    'padding': '10px'
+}
+
 # App layout
 app.layout = dbc.Container(
     [
@@ -34,93 +43,129 @@ app.layout = dbc.Container(
         dbc.Row(dbc.Col(dbc.Card(
             dbc.CardBody(
                 [
+                    html.H4('Correlation Analysis', style=card_header_style),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Correlation Type'), width=2),
-                            dbc.Col(dcc.Dropdown(id="correlation_method", options=correlation_method_options, value="pearson"), width=10)
+                            dbc.Col(html.H6('Correlation Type'), width=3),
+                            dbc.Col(dcc.Dropdown(id="correlation_method", options=correlation_method_options, value="pearson"), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Date Range'), width=2),
-                            dbc.Col(dcc.DatePickerRange(id="date-picker", start_date="2023-01-01", end_date="2023-12-31"), width=10)
+                            dbc.Col(html.H6('Date Range'), width=3),
+                            dbc.Col(dcc.DatePickerRange(id="date-picker", start_date="2023-01-01", end_date="2023-12-31"), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Top N'), width=2),
-                            dbc.Col(dcc.Input(id="top_n", type="number", value=10), width=10)
+                            dbc.Col(html.H6('Top N'), width=3),
+                            dbc.Col(dcc.Input(id="top_n", type="number", value=10), width=9)
                         ],
                         className="mb-3"
                     ),
-                    dbc.Row(dbc.Col(dbc.Button("Submit", id="submit-button", n_clicks=0, color="primary"), className="d-flex justify-content-end"))
+                    dbc.Row(dbc.Col(dbc.Button("Submit", id="submit-button", n_clicks=0, color="primary", className="w-100"))),
                 ]
             ),
             className="mb-4"
         ))),
 
-        dbc.Row(dbc.Col(html.Div(id='pairs'))),
+        dbc.Row(dbc.Col(dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4('Top Pairs', style=card_header_style),
+                    html.Div(id='pairs')
+                ]
+            ),
+            className="mb-4"
+        ))),
 
         dbc.Row(dbc.Col(html.H6("Please Note: In case OU fit doesn't converge, mean reversion speed defaults to 0.5", className="mb-4"))),
 
         dbc.Row(dbc.Col(dbc.Card(
             dbc.CardBody(
                 [
+                    html.H4('Backtest Parameters', style=card_header_style),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Ticker1'), width=2),
-                            dbc.Col(dcc.Dropdown(id="Ticker1", options=ticker_options, value="AAPL"), width=10)
+                            dbc.Col(html.H6('Ticker1'), width=3),
+                            dbc.Col(dcc.Dropdown(id="Ticker1", options=ticker_options, value="AAPL"), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Ticker2'), width=2),
-                            dbc.Col(dcc.Dropdown(id="Ticker2", options=ticker_options, value="MSFT"), width=10)
+                            dbc.Col(html.H6('Ticker2'), width=3),
+                            dbc.Col(dcc.Dropdown(id="Ticker2", options=ticker_options, value="MSFT"), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Lookback Window for Ratio Quantile'), width=2),
-                            dbc.Col(dcc.Input(id="lookback", type="number", value=63), width=10)
+                            dbc.Col(html.H6('Lookback Window for Ratio Quantile'), width=3),
+                            dbc.Col(dcc.Input(id="lookback", type="number", value=63), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Price Ratio Z-score Quantile for Long'), width=2),
-                            dbc.Col(dcc.Slider(id="long_q", min=-3, max=0, step=0.25, value=-1), width=10)
+                            dbc.Col(html.H6('Price Ratio Z-score Quantile for Long'), width=3),
+                            dbc.Col(dcc.Slider(id="long_q", min=-3, max=0, step=0.25, value=-1), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Price Ratio Z-score Quantile for Short'), width=2),
-                            dbc.Col(dcc.Slider(id="short_q", min=0, max=3, step=0.25, value=1), width=10)
+                            dbc.Col(html.H6('Price Ratio Z-score Quantile for Short'), width=3),
+                            dbc.Col(dcc.Slider(id="short_q", min=0, max=3, step=0.25, value=1), width=9)
                         ],
                         className="mb-3"
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(html.H4('Hold Period for trade'), width=2),
-                            dbc.Col(dcc.Input(id="hold_days", type="number", value=2), width=10)
+                            dbc.Col(html.H6('Hold Period for trade'), width=3),
+                            dbc.Col(dcc.Input(id="hold_days", type="number", value=2), width=9)
                         ],
                         className="mb-3"
                     ),
-                    dbc.Row(dbc.Col(dbc.Button("Backtest", id="submit-button1", n_clicks=0, color="primary"), className="d-flex justify-content-end"))
+                    dbc.Row(dbc.Col(dbc.Button("Backtest", id="submit-button1", n_clicks=0, color="primary", className="w-100")))
                 ]
             ),
             className="mb-4"
         ))),
 
-        dbc.Row(dbc.Col(html.Div(id='performance-metrics', className="mb-4"))),
+        dbc.Row(dbc.Col(dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4('Performance Metrics', style=card_header_style),
+                    html.Div(id='performance-metrics')
+                ]
+            ),
+            className="mb-4"
+        ))),
 
-        dbc.Row(dbc.Col(html.Div(dcc.Graph(id="correlation-graph"), className="mb-4"))),
-
-        dbc.Row(dbc.Col(html.Div(dcc.Graph(id="backtest-graph"), className="mb-4")))
+        dbc.Row(
+            [
+                dbc.Col(dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H4('Correlation Graph', style=card_header_style),
+                            dcc.Graph(id="correlation-graph")
+                        ]
+                    )
+                ), width=6),
+                dbc.Col(dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H4('Backtest Graph', style=card_header_style),
+                            dcc.Graph(id="backtest-graph")
+                        ]
+                    )
+                ), width=6)
+            ],
+            className="mb-4"
+        )
     ],
     fluid=True
 )
