@@ -3,8 +3,10 @@ import sys
 import dash
 import plotly.graph_objs as go
 import flask
+import dash_table as dt
 
 from dash import dcc, html, Input, Output, State
+import dash_bootstrap_components as dbc
 from dash_table import DataTable
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -18,78 +20,118 @@ ticker_options = [{"label": ticker, "value": ticker} for ticker in tickers]
 correlation_method_options = [
     {"label": "pearson", "value": "pearson"},
     {"label": "spearman", "value": "spearman"},
-    # {"label": "OLS", "value": "OLS"},
     {"label": "kalman", "value": "kalman"}
 ]
 
 server = flask.Flask(__name__)
-app = dash.Dash(__name__, server= server)
-
+app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # App layout
-app.layout = html.Div(
+app.layout = dbc.Container(
     [
-        html.H1("Equities Pair Trading Dashboard"),
-        html.Div(id='input-section', children = 
+        dbc.Row(dbc.Col(html.H1("Equities Pair Trading Dashboard"), className="mb-4")),
+
+        dbc.Row(dbc.Col(dbc.Card(
+            dbc.CardBody(
                 [
-                    html.H2("Get Top N correlations"),
-                    html.Br(),
-                    html.H4('Correlation Type',style={'display':'inline-block','margin-right':20}),
-                    dcc.Dropdown(id="correlation_method", options=correlation_method_options, value="pearson"),
-                    html.H4('Date Range',style={'display':'inline-block','margin-right':20}),
-                    dcc.DatePickerRange(id="date-picker", start_date="2023-01-01", end_date="2023-12-31"),
-                    html.Br(),
-                    html.H4('Top N',style={'display':'inline-block','margin-right':20}),
-                    dcc.Input(id="top_n", type="number", value=10),
-                    html.Br(),
-                    html.Button(id="submit-button", n_clicks=0, children="Submit")
-                ]),
-        html.Div(id='pairs'),
-        html.H6('Please Note: In case OU fit doesn\'t converge, mean reversion speed defaults to 0.5', 
-                 style={'display':'inline-block','margin-right':20}
-                ),
-        html.Div(id='input-section1', children = 
-                [
-                    html.H2("Run backtest"),
-                    html.Br(),
-                    html.H6('Backtest based on mean reversion of p1/p2 ratio', 
-                     style={'display':'inline-block','margin-right':20}
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Correlation Type'), width=2),
+                            dbc.Col(dcc.Dropdown(id="correlation_method", options=correlation_method_options, value="pearson"), width=10)
+                        ],
+                        className="mb-3"
                     ),
-                    html.Br(),
-                    html.H4('Ticker1',style={'display':'inline-block','margin-right':20}),
-                    dcc.Dropdown(id="Ticker1", options=ticker_options, value="AAPL"),
-                    html.H4('Ticker2',style={'display':'inline-block','margin-right':20}),
-                    dcc.Dropdown(id="Ticker2", options=ticker_options, value="MSFT"),
-                    html.H4('Lookback Window for Ratio Quantile',style={'display':'inline-block','margin-right':20}),
-                    dcc.Input(id="lookback", type="number", value=63),
-                    html.Br(),
-                    html.H4('Price Ratio Z-score Quantile for Long',style={'display':'inline-block','margin-right':20}),
-                    dcc.Slider(id="long_q", min=-3, max=0, step=0.25, value=-1),
-                    html.H4('Price Ratio Z-score Quantile for Short',style={'display':'inline-block','margin-right':20}),
-                    dcc.Slider(id="short_q", min=0, max=3, step=0.25, value=1),
-                    html.H4('Hold Period for trade',style={'display':'inline-block','margin-right':20}),
-                    dcc.Input(id="hold_days", type="number", value=2),
-                    html.Br(),
-                    html.Button(id="submit-button1", n_clicks=0, children="Backtest")
-                ]),
-        html.H4('Performance Metrics',style={'display':'inline-block','margin-right':20}),
-        html.Div(id='performance-metrics'),
-        html.H4('Rolling Correlation',style={'display':'inline-block','margin-right':20}),
-        dcc.Graph(id="correlation-graph"),
-        html.H4('Cumulative PnL from backtest',style={'display':'inline-block','margin-right':20}),
-        dcc.Graph(id="backtest-graph")
-    ])
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Date Range'), width=2),
+                            dbc.Col(dcc.DatePickerRange(id="date-picker", start_date="2023-01-01", end_date="2023-12-31"), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Top N'), width=2),
+                            dbc.Col(dcc.Input(id="top_n", type="number", value=10), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(dbc.Col(dbc.Button("Submit", id="submit-button", n_clicks=0, color="primary"), className="d-flex justify-content-end"))
+                ]
+            ),
+            className="mb-4"
+        ))),
+
+        dbc.Row(dbc.Col(html.Div(id='pairs'))),
+
+        dbc.Row(dbc.Col(html.H6("Please Note: In case OU fit doesn't converge, mean reversion speed defaults to 0.5", className="mb-4"))),
+
+        dbc.Row(dbc.Col(dbc.Card(
+            dbc.CardBody(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Ticker1'), width=2),
+                            dbc.Col(dcc.Dropdown(id="Ticker1", options=ticker_options, value="AAPL"), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Ticker2'), width=2),
+                            dbc.Col(dcc.Dropdown(id="Ticker2", options=ticker_options, value="MSFT"), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Lookback Window for Ratio Quantile'), width=2),
+                            dbc.Col(dcc.Input(id="lookback", type="number", value=63), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Price Ratio Z-score Quantile for Long'), width=2),
+                            dbc.Col(dcc.Slider(id="long_q", min=-3, max=0, step=0.25, value=-1), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Price Ratio Z-score Quantile for Short'), width=2),
+                            dbc.Col(dcc.Slider(id="short_q", min=0, max=3, step=0.25, value=1), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(html.H4('Hold Period for trade'), width=2),
+                            dbc.Col(dcc.Input(id="hold_days", type="number", value=2), width=10)
+                        ],
+                        className="mb-3"
+                    ),
+                    dbc.Row(dbc.Col(dbc.Button("Backtest", id="submit-button1", n_clicks=0, color="primary"), className="d-flex justify-content-end"))
+                ]
+            ),
+            className="mb-4"
+        ))),
+
+        dbc.Row(dbc.Col(html.Div(id='performance-metrics', className="mb-4"))),
+
+        dbc.Row(dbc.Col(html.Div(dcc.Graph(id="correlation-graph"), className="mb-4"))),
+
+        dbc.Row(dbc.Col(html.Div(dcc.Graph(id="backtest-graph"), className="mb-4")))
+    ],
+    fluid=True
+)
 
 @app.callback(
     Output("pairs", "children"),
     [Input("submit-button", "n_clicks")],
-    [dash.dependencies.State("correlation_method", "value"), 
-     dash.dependencies.State("top_n", "value"), 
-     dash.dependencies.State("date-picker", "start_date"), 
-     dash.dependencies.State("date-picker", "end_date")] 
+    [State("correlation_method", "value"), State("top_n", "value"), State("date-picker", "start_date"), State("date-picker", "end_date")]
 )
 def update_dashboard(n_clicks, corr_method, top_n, start_date, end_date):
-	# Correlation app
+    # Correlation app
     if n_clicks > 0:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
@@ -121,20 +163,16 @@ def update_dashboard(n_clicks, corr_method, top_n, start_date, end_date):
 
 @app.callback(
     [Output("performance-metrics", "children"),
-    Output("correlation-graph", "figure"), 
-    Output("backtest-graph", "figure")],
-    [Input("input-section1", "n_clicks")],
-    [dash.dependencies.State("date-picker", "start_date"), 
-     dash.dependencies.State("date-picker", "end_date"),
-     dash.dependencies.State("Ticker1", "value"),
-     dash.dependencies.State("Ticker2", "value"),
-     dash.dependencies.State("lookback", "value"),
-     dash.dependencies.State("long_q", "value"), 
-     dash.dependencies.State("short_q", "value"),
-     dash.dependencies.State("hold_days", "value")]
+     Output("correlation-graph", "figure"),
+     Output("backtest-graph", "figure")],
+    [Input("submit-button1", "n_clicks")],
+    [State("date-picker", "start_date"), State("date-picker", "end_date"),
+     State("Ticker1", "value"), State("Ticker2", "value"),
+     State("lookback", "value"), State("long_q", "value"),
+     State("short_q", "value"), State("hold_days", "value")]
 )
 def update_dashboard1(n_bt_clicks, start_date, end_date, ticker1, ticker2, lookback, long_q, short_q, hold_days):
-	# Backtest app
+    # Backtest app
     if n_bt_clicks:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
